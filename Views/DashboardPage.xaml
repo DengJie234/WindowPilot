@@ -1,0 +1,165 @@
+<UserControl x:Class="WindowPilot.Views.DashboardPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:WindowPilot.Converters">
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <conv:OpacityToPercentConverter x:Key="OpacityToPercent"/>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,16,16">
+                <StackPanel>
+                    <TextBlock Text="当前活动窗口" Style="{StaticResource CardTitleText}"/>
+                    <TextBlock Text="捕获当前可控制窗口并查看基础信息。" Style="{StaticResource CardCaptionText}" Margin="0,4,0,16"/>
+
+                    <StackPanel Visibility="{Binding HasCurrentWindow, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                        <TextBlock Text="当前没有可控制的活动窗口" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBlock Text="可能当前焦点在 WindowPilot、系统窗口或管理员权限窗口。" Style="{StaticResource CardCaptionText}" Margin="0,6,0,0"/>
+                    </StackPanel>
+
+                    <Grid Visibility="{Binding HasCurrentWindow, Converter={StaticResource BoolToVisibility}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="标题" Style="{StaticResource InfoLabelText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentWindowTitle}" Style="{StaticResource InfoValueText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="进程" Style="{StaticResource InfoLabelText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ProcessDisplay}" Style="{StaticResource InfoValueText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="PID" Style="{StaticResource InfoLabelText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding PidDisplay}" Style="{StaticResource InfoValueText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="句柄" Style="{StaticResource InfoLabelText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding HandleDisplay}" Style="{StaticResource InfoValueText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="位置 / 大小" Style="{StaticResource InfoLabelText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding BoundsDisplay}" Style="{StaticResource InfoValueText}" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="显示器" Style="{StaticResource InfoLabelText}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding MonitorDisplay}" Style="{StaticResource InfoValueText}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="当前状态" Style="{StaticResource CardTitleText}"/>
+                    <TextBlock Text="置顶、透明度、穿透和保护状态。" Style="{StaticResource CardCaptionText}" Margin="0,4,0,16"/>
+                    <ItemsControl ItemsSource="{Binding CurrentStatusTags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border>
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}" BasedOn="{StaticResource NormalTag}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Kind}" Value="TopMost">
+                                                    <Setter Property="Background" Value="{StaticResource LightBlueBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Kind}" Value="Transparent">
+                                                    <Setter Property="Background" Value="{StaticResource LightPurpleBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Kind}" Value="ClickThrough">
+                                                    <Setter Property="Background" Value="{StaticResource LightOrangeBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Kind}" Value="Protected">
+                                                    <Setter Property="Background" Value="{StaticResource LightGrayBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Kind}" Value="Mini">
+                                                    <Setter Property="Background" Value="{StaticResource LightGreenBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Text}" Style="{StaticResource TagText}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{Binding OpacityText}" Style="{StaticResource InfoValueText}" Margin="0,18,0,8"/>
+                    <ProgressBar Height="8" Minimum="20" Maximum="100" Value="{Binding OpacityPercent}" Foreground="{StaticResource PrimaryBrush}" Background="{StaticResource LightGrayBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,16,0">
+                <StackPanel>
+                    <TextBlock Text="快捷操作" Style="{StaticResource CardTitleText}"/>
+                    <TextBlock Text="常用窗口动作。危险动作会二次确认。" Style="{StaticResource CardCaptionText}" Margin="0,4,0,16"/>
+                    <WrapPanel>
+                        <Button Content="刷新活动窗口" Style="{StaticResource PrimaryButton}" Command="{Binding RefreshCurrentCommand}" Margin="0,0,8,8"/>
+                        <Button Content="3 秒后捕获" Style="{StaticResource SecondaryButton}" Command="{Binding DelayedCaptureCommand}" Margin="0,0,8,8"/>
+                        <Button Content="置顶 / 取消" Style="{StaticResource PrimaryButton}" Command="{Binding ToggleTopMostCommand}" Margin="0,0,8,8"/>
+                        <Button Content="80% 透明" Style="{StaticResource SecondaryButton}" Command="{Binding SetOpacity80Command}" Margin="0,0,8,8"/>
+                        <Button Content="恢复不透明" Style="{StaticResource SecondaryButton}" Command="{Binding RestoreOpacityCommand}" Margin="0,0,8,8"/>
+                        <Button Content="点击穿透 / 取消" Style="{StaticResource SecondaryButton}" Command="{Binding ToggleClickThroughCommand}" Margin="0,0,8,8"/>
+                        <Button Content="左半屏" Style="{StaticResource SecondaryButton}" Command="{Binding MoveLeftCommand}" Margin="0,0,8,8"/>
+                        <Button Content="右半屏" Style="{StaticResource SecondaryButton}" Command="{Binding MoveRightCommand}" Margin="0,0,8,8"/>
+                        <Button Content="居中" Style="{StaticResource SecondaryButton}" Command="{Binding CenterCommand}" Margin="0,0,8,8"/>
+                        <Button Content="小窗右下" Style="{StaticResource SecondaryButton}" Command="{Binding MiniBottomRightCommand}" Margin="0,0,8,8"/>
+                        <Button Content="紧急恢复全部" Style="{StaticResource DangerButton}" Command="{Binding EmergencyRestoreCommand}" Margin="0,0,8,8"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="透明度" Style="{StaticResource CardTitleText}"/>
+                        <TextBlock Text="最低限制为 20%，避免窗口完全不可见。" Style="{StaticResource CardCaptionText}" Margin="0,4,0,16"/>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding OpacityText}" Style="{StaticResource InfoValueText}" Margin="12,0,0,0"/>
+                            <Slider Minimum="20" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding OpacityPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DockPanel>
+                        <TextBlock Text="快捷键：Ctrl + Alt + Up / Down / 0" Style="{StaticResource InfoLabelText}" Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="最近操作" Style="{StaticResource CardTitleText}"/>
+                        <TextBlock Text="最近 5 条窗口操作记录。" Style="{StaticResource CardCaptionText}" Margin="0,4,0,12"/>
+                        <ItemsControl ItemsSource="{Binding RecentOperations}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                        <TextBlock Text="{Binding DisplayText}" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="还没有操作记录。"
+                                   Style="{StaticResource CardCaptionText}"
+                                   Visibility="{Binding HasRecentOperations, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

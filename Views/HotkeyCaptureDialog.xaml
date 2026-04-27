@@ -1,0 +1,44 @@
+<Window x:Class="WindowPilot.Views.HotkeyCaptureDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="修改快捷键"
+        Width="460"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource AppBackgroundBrush}"
+        PreviewKeyDown="OnPreviewKeyDown">
+    <Border Margin="18" Style="{StaticResource Card}">
+        <StackPanel>
+            <TextBlock Text="修改快捷键" Style="{StaticResource CardTitleText}"/>
+            <TextBlock Text="请直接按下新的组合键。建议使用 Ctrl + Alt + Shift + 主键，避免和其他软件冲突。"
+                       Style="{StaticResource CardCaptionText}"
+                       TextWrapping="Wrap"
+                       Margin="0,6,0,16"/>
+
+            <TextBlock Text="正在录入" Style="{StaticResource InfoLabelText}" Margin="0,0,0,6"/>
+            <Border Background="{StaticResource HoverBlueBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,12">
+                <TextBlock Text="{Binding PreviewText}"
+                           Foreground="{StaticResource PrimaryTextBrush}"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+            </Border>
+
+            <TextBlock Text="{Binding Message}"
+                       Foreground="{StaticResource DangerBrush}"
+                       TextWrapping="Wrap"
+                       Margin="0,10,0,0"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                <Button Content="清空" Style="{StaticResource SecondaryButton}" Click="Clear_Click" Margin="0,0,8,0"/>
+                <Button Content="取消" Style="{StaticResource SecondaryButton}" IsCancel="True" Margin="0,0,8,0"/>
+                <Button Content="确定" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Ok_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,0 +1,98 @@
+<Window x:Class="WindowPilot.Views.Dialogs.RuleEditorDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="新建自动规则"
+        Width="620"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="Transparent"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="18">
+        <Border Background="{StaticResource CardBackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Padding="24">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.18" Color="#111827"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="新建自动规则" Foreground="{StaticResource PrimaryTextBrush}" FontSize="22" FontWeight="SemiBold"/>
+                <TextBlock Text="至少填写一个匹配条件。空条件规则不会被保存，也不会匹配所有窗口。"
+                           Foreground="{StaticResource SecondaryTextBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,6,0,18"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="规则名称" Style="{StaticResource InfoLabelText}"/>
+                        <TextBox x:Name="NameBox" Margin="0,6,0,12" Text="新规则"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="2">
+                        <TextBlock Text="进程名" Style="{StaticResource InfoLabelText}"/>
+                        <TextBox x:Name="ProcessNameBox" Margin="0,6,0,12" ToolTip="例如 msedge、QQ、notepad"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <TextBlock Text="标题关键词" Style="{StaticResource InfoLabelText}"/>
+                        <TextBox x:Name="TitleContainsBox" Margin="0,6,0,12" ToolTip="例如 工作台、会议、文档"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2">
+                        <TextBlock Text="窗口类名" Style="{StaticResource InfoLabelText}"/>
+                        <TextBox x:Name="ClassNameBox" Margin="0,6,0,12"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+                        <TextBlock Text="程序路径" Style="{StaticResource InfoLabelText}"/>
+                        <TextBox x:Name="ProcessPathBox" Margin="0,6,0,12"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="0">
+                        <TextBlock Text="动作" Style="{StaticResource InfoLabelText}"/>
+                        <ComboBox x:Name="ActionTypeBox" Margin="0,6,0,12" MinHeight="36"/>
+                    </StackPanel>
+                    <Grid Grid.Row="3" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="优先级" Style="{StaticResource InfoLabelText}"/>
+                            <TextBox x:Name="PriorityBox" Margin="0,6,0,12" Text="100"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="冷却秒数" Style="{StaticResource InfoLabelText}"/>
+                            <TextBox x:Name="CooldownBox" Margin="0,6,0,12" Text="10"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <TextBlock x:Name="ErrorText"
+                           Foreground="{StaticResource DangerBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,16"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="取消" Style="{StaticResource GhostButton}" Click="Cancel_Click" Margin="0,0,8,0"/>
+                    <Button Content="保存规则" Style="{StaticResource PrimaryButton}" Click="Save_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

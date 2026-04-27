@@ -1,0 +1,100 @@
+<Window x:Class="WindowPilot.Views.Dialogs.ExitConfirmDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="退出 WindowPilot"
+        Width="560"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Background="Transparent"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="18">
+        <Border Background="{StaticResource CardBackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Padding="24">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.18" Color="#111827"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0">
+                    <Border DockPanel.Dock="Left"
+                            Width="48"
+                            Height="48"
+                            CornerRadius="14"
+                            Background="{StaticResource HoverBlueBrush}"
+                            Margin="0,0,14,0">
+                        <TextBlock Text="WP"
+                                   Foreground="{StaticResource PrimaryBrush}"
+                                   FontWeight="Bold"
+                                   FontSize="15"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="退出 WindowPilot"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="退出前是否恢复所有被 WindowPilot 修改过的窗口状态？"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   FontSize="14"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <Border Grid.Row="1"
+                        Background="#F8FAFC"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="16"
+                        Margin="0,20,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="将尝试恢复" Foreground="{StaticResource PrimaryTextBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Text="取消置顶" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,8,0,0"/>
+                            <TextBlock Text="恢复透明度" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,6,0,0"/>
+                            <TextBlock Text="取消点击穿透" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,6,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="同时处理" Foreground="{StaticResource PrimaryTextBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Text="恢复小窗模式" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,8,0,0"/>
+                            <TextBlock Text="关闭 Overlay 高亮" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,6,0,0"/>
+                            <TextBlock Text="释放托盘和快捷键资源" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="取消"
+                            Style="{StaticResource GhostButton}"
+                            Click="Cancel_Click"
+                            Margin="0,0,8,0"/>
+                    <Button Content="直接退出"
+                            Style="{StaticResource SecondaryButton}"
+                            Click="ExitDirectly_Click"
+                            Margin="0,0,8,0"/>
+                    <Button Content="恢复后退出"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="RestoreAndExit_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

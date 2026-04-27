@@ -1,0 +1,64 @@
+<UserControl x:Class="WindowPilot.Views.AboutPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Width="84" Height="84" CornerRadius="18" Background="{StaticResource HoverBlueBrush}" Margin="0,0,20,0">
+                        <Image Source="Assets/AppIcon.ico" Width="64" Height="64"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="WindowPilot" FontSize="28" FontWeight="Bold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource CardCaptionText}" Margin="0,6,0,12"/>
+                        <WrapPanel>
+                            <Border Style="{StaticResource TopMostTag}">
+                                <TextBlock Text="{Binding VersionText}" Style="{StaticResource TagText}"/>
+                            </Border>
+                            <Border Style="{StaticResource NormalTag}">
+                                <TextBlock Text=".NET 8 WPF" Style="{StaticResource TagText}"/>
+                            </Border>
+                        </WrapPanel>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="核心能力" Style="{StaticResource CardTitleText}"/>
+                        <UniformGrid Columns="2" Margin="0,14,0,0">
+                            <TextBlock Text="窗口置顶" Style="{StaticResource InfoValueText}" Margin="0,0,0,8"/>
+                            <TextBlock Text="透明度调整" Style="{StaticResource InfoValueText}" Margin="0,0,0,8"/>
+                            <TextBlock Text="点击穿透" Style="{StaticResource InfoValueText}" Margin="0,0,0,8"/>
+                            <TextBlock Text="布局恢复" Style="{StaticResource InfoValueText}" Margin="0,0,0,8"/>
+                            <TextBlock Text="自动规则" Style="{StaticResource InfoValueText}" Margin="0,0,0,8"/>
+                            <TextBlock Text="全局快捷键" Style="{StaticResource InfoValueText}" Margin="0,0,0,8"/>
+                            <TextBlock Text="托盘运行" Style="{StaticResource InfoValueText}"/>
+                            <TextBlock Text="Overlay 高亮" Style="{StaticResource InfoValueText}"/>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="项目文件" Style="{StaticResource CardTitleText}"/>
+                        <TextBlock Text="配置目录" Style="{StaticResource InfoLabelText}" Margin="0,14,0,4"/>
+                        <TextBlock Text="{Binding ConfigDirectory}" Style="{StaticResource InfoValueText}" TextWrapping="Wrap"/>
+                        <TextBlock Text="日志目录" Style="{StaticResource InfoLabelText}" Margin="0,14,0,4"/>
+                        <TextBlock Text="{Binding LogDirectory}" Style="{StaticResource InfoValueText}" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                            <Button Content="打开配置目录" Style="{StaticResource PrimaryButton}" Command="{Binding OpenConfigDirectoryCommand}" Margin="0,0,8,0"/>
+                            <Button Content="打开日志目录" Style="{StaticResource SecondaryButton}" Command="{Binding OpenLogDirectoryCommand}"/>
+                        </StackPanel>
+                        <Button Content="检查更新" Style="{StaticResource GhostButton}" IsEnabled="False" HorizontalAlignment="Left" Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

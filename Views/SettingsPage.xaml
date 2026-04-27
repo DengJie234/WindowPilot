@@ -1,0 +1,32 @@
+<UserControl x:Class="WindowPilot.Views.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="常规" Style="{StaticResource CardTitleText}"/>
+                    <CheckBox Content="关闭主窗口时最小化到托盘" IsChecked="{Binding MinimizeToTrayOnClose}" Margin="0,14,0,0"/>
+                    <CheckBox Content="显示 Overlay 高亮" IsChecked="{Binding OverlayEnabled}" Margin="0,10,0,0"/>
+                    <CheckBox Content="仅操作后临时高亮" IsChecked="{Binding OverlayTemporaryOnly}" Margin="0,10,0,0"/>
+                    <CheckBox Content="选中窗口时高亮" IsChecked="{Binding HighlightSelectedWindow}" Margin="0,10,0,0"/>
+                    <CheckBox Content="暂停全部自动规则" IsChecked="{Binding RulesPaused}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="外观" Style="{StaticResource CardTitleText}"/>
+                    <TextBlock Text="当前使用浅色主题。深色主题和主色选择已预留在样式资源中。" Style="{StaticResource CardCaptionText}" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="安全" Style="{StaticResource CardTitleText}"/>
+                    <TextBlock Text="系统关键窗口过滤、点击穿透紧急恢复和退出恢复询问仍由原有服务保证。" Style="{StaticResource CardCaptionText}" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

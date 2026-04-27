@@ -1,0 +1,156 @@
+<UserControl x:Class="WindowPilot.Views.WindowsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:WindowPilot.Converters">
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Border Style="{StaticResource Card}">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="搜索窗口标题或进程名"/>
+                    <CheckBox Grid.Column="1"
+                              Content="仅显示可控制窗口"
+                              IsChecked="{Binding OnlyControllable}"
+                              Margin="14,0,0,0"
+                              VerticalAlignment="Center"/>
+                    <ComboBox Grid.Column="2"
+                              ItemsSource="{Binding StatusFilters}"
+                              SelectedItem="{Binding SelectedStatusFilter}"
+                              Margin="14,0,0,0"
+                              MinWidth="132"
+                              VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3"
+                               Text="{Binding CountText}"
+                               Style="{StaticResource CardCaptionText}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Margin="0,0,14,0"/>
+                    <StackPanel Grid.Column="4" Orientation="Horizontal">
+                        <Button Content="刷新" Style="{StaticResource PrimaryButton}" Command="{Binding RefreshCommand}" Margin="0,0,8,0"/>
+                        <Button Content="批量恢复" Style="{StaticResource SecondaryButton}" Command="{Binding BatchRestoreCommand}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid>
+                    <DataGrid ItemsSource="{Binding WindowsView}"
+                              SelectedItem="{Binding SelectedWindow, Mode=TwoWay}"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              EnableRowVirtualization="True"
+                              EnableColumnVirtualization="True"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.CanContentScroll="True">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="窗口标题" Width="2.3*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Title}"
+                                                   ToolTip="{Binding Title}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="进程" Binding="{Binding ProcessName}" Width="1*"/>
+                            <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="80"/>
+                            <DataGridTextColumn Header="位置 / 大小" Binding="{Binding Bounds}" Width="150"/>
+                            <DataGridTemplateColumn Header="状态" Width="220">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ItemsControl ItemsSource="{Binding StatusTags}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border>
+                                                        <Border.Style>
+                                                            <Style TargetType="{x:Type Border}" BasedOn="{StaticResource NormalTag}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="TopMost">
+                                                                        <Setter Property="Background" Value="{StaticResource LightBlueBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="Transparent">
+                                                                        <Setter Property="Background" Value="{StaticResource LightPurpleBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="ClickThrough">
+                                                                        <Setter Property="Background" Value="{StaticResource LightOrangeBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="Mini">
+                                                                        <Setter Property="Background" Value="{StaticResource LightGreenBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Kind}" Value="Protected">
+                                                                        <Setter Property="Background" Value="{StaticResource LightGrayBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding Text}" Style="{StaticResource TagText}"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="操作" Width="360">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <WrapPanel>
+                                            <Button Content="置顶" Style="{StaticResource SmallSecondaryButton}" Command="{Binding DataContext.ToggleTopMostCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" IsEnabled="{Binding IsProtected, Converter={StaticResource InverseBool}}" Margin="0,0,6,0"/>
+                                            <Button Content="透明" Style="{StaticResource SmallSecondaryButton}" Command="{Binding DataContext.SetOpacity80Command, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" IsEnabled="{Binding IsProtected, Converter={StaticResource InverseBool}}" Margin="0,0,6,0"/>
+                                            <Button Content="穿透" Style="{StaticResource SmallSecondaryButton}" Command="{Binding DataContext.ToggleClickThroughCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" IsEnabled="{Binding IsProtected, Converter={StaticResource InverseBool}}" Margin="0,0,6,0"/>
+                                            <Button Content="左" Style="{StaticResource SmallSecondaryButton}" Command="{Binding DataContext.MoveLeftCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" IsEnabled="{Binding IsProtected, Converter={StaticResource InverseBool}}" Margin="0,0,6,0"/>
+                                            <Button Content="右" Style="{StaticResource SmallSecondaryButton}" Command="{Binding DataContext.MoveRightCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" IsEnabled="{Binding IsProtected, Converter={StaticResource InverseBool}}" Margin="0,0,6,0"/>
+                                            <Button Content="居中" Style="{StaticResource SmallSecondaryButton}" Command="{Binding DataContext.CenterCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" IsEnabled="{Binding IsProtected, Converter={StaticResource InverseBool}}"/>
+                                        </WrapPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Border Background="#F8FAFC"
+                            CornerRadius="10"
+                            Padding="24"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding HasNoWindows, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Text="当前没有可显示的窗口" Style="{StaticResource CardTitleText}" TextAlignment="Center"/>
+                            <TextBlock Text="请打开普通桌面应用后刷新窗口列表。" Style="{StaticResource CardCaptionText}" TextAlignment="Center" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#F8FAFC"
+                            CornerRadius="10"
+                            Padding="24"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding HasNoResults, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Text="未找到匹配窗口" Style="{StaticResource CardTitleText}" TextAlignment="Center"/>
+                            <TextBlock Text="换一个标题、进程名或 PID 关键词再试。" Style="{StaticResource CardCaptionText}" TextAlignment="Center" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

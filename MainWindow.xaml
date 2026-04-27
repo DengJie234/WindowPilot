@@ -1,0 +1,182 @@
+<Window x:Class="WindowPilot.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WindowPilot"
+        Width="1320"
+        Height="820"
+        MinWidth="1120"
+        MinHeight="700"
+        WindowStartupLocation="CenterScreen"
+        Icon="Assets/AppIcon.ico"
+        Background="{StaticResource AppBackgroundBrush}"
+        SourceInitialized="OnSourceInitialized"
+        Closing="OnClosing">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="236"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource SidebarBackgroundBrush}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="20,24,20,20">
+                    <TextBlock Text="WindowPilot"
+                               Foreground="{StaticResource SidebarLogoForegroundBrush}"
+                               FontSize="28"
+                               FontWeight="Bold"/>
+                    <TextBlock Text="Window Manager"
+                               Foreground="{StaticResource SidebarSubtitleForegroundBrush}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" Margin="20,0,20,22">
+                    <Border Background="#111C31" CornerRadius="10" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="运行中" Foreground="#86EFAC" FontWeight="SemiBold" FontSize="12"/>
+                            <TextBlock Text="关闭窗口后保留托盘" Foreground="{StaticResource SidebarFooterForegroundBrush}" FontSize="12" Margin="0,4,0,0"/>
+                            <TextBlock Text="v0.2 UI Refresh" Foreground="{StaticResource SidebarItemDisabledForegroundBrush}" FontSize="11" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel>
+                    <RadioButton Content="总览"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Dashboard, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Dashboard"/>
+                    <RadioButton Content="窗口列表"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Windows, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Windows"/>
+                    <RadioButton Content="布局管理"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Layouts, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Layouts"/>
+                    <RadioButton Content="自动规则"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Rules, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Rules"/>
+                    <RadioButton Content="小窗模式"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Mini, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Mini"/>
+                    <RadioButton Content="分组管理"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Groups, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Groups"/>
+                    <RadioButton Content="快捷键"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Hotkeys, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Hotkeys"/>
+                    <RadioButton Content="设置"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=Settings, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Settings"/>
+                    <RadioButton Content="关于"
+                                 Style="{StaticResource NavRadioButton}"
+                                 GroupName="MainNavigation"
+                                 IsChecked="{Binding CurrentPageKey, Converter={StaticResource StringEquals}, ConverterParameter=About, Mode=OneWay}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="About"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="72"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,0">
+                <DockPanel LastChildFill="False">
+                    <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PageTitle}" Style="{StaticResource PageTitleText}"/>
+                        <TextBlock Text="{Binding PageDescription}" Style="{StaticResource PageDescriptionText}" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,7" Margin="0,0,10,0">
+                            <TextBlock Text="{Binding CurrentTimeText}" Foreground="{StaticResource SecondaryTextBrush}" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,7" Margin="0,0,10,0" MaxWidth="320">
+                            <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource SecondaryTextBrush}" TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                        <Button Content="刷新" Style="{StaticResource SecondaryButton}" Command="{Binding RefreshCommand}" Margin="0,0,8,0"/>
+                        <Button Content="设置" Style="{StaticResource SecondaryButton}" Command="{Binding OpenSettingsCommand}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <ContentControl Grid.Row="1" Content="{Binding CurrentPage}"/>
+        </Grid>
+
+        <ItemsControl Grid.ColumnSpan="2"
+                      ItemsSource="{Binding Toasts}"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom"
+                      Margin="0,0,24,24"
+                      IsHitTestVisible="False">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Width="340"
+                            Background="{StaticResource CardBackgroundBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="14"
+                            Margin="0,0,0,10">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.16" Color="#111827"/>
+                        </Border.Effect>
+                        <DockPanel>
+                            <Border DockPanel.Dock="Left"
+                                    Width="8"
+                                    CornerRadius="4"
+                                    Margin="0,0,12,0">
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Success">
+                                                <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Warning">
+                                                <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Kind}" Value="Error">
+                                                <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}" Foreground="{StaticResource PrimaryTextBrush}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Message}" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>
