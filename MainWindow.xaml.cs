@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private readonly MiniWindowService _miniWindowService;
     private readonly MainViewModel _viewModel;
     private TrayIconService? _trayIconService;
+    private TrayFlyoutService? _trayFlyoutService;
     private HotKeyService? _hotKeyService;
     private OverlayService? _overlayService;
     private bool _isExitRequested;
@@ -51,6 +52,7 @@ public partial class MainWindow : Window
         var layoutService = new LayoutService(_config, _windowService, matcherService);
         _ruleService = new RuleService(_config, _windowService);
         _miniWindowService = new MiniWindowService(_config, _windowService, matcherService);
+        var appIconService = new AppIconService();
 
         var dashboard = new DashboardViewModel(
             _windowService,
@@ -60,7 +62,7 @@ public partial class MainWindow : Window
             RefreshWindowsAndOverlay,
             Confirm,
             Notify);
-        var windows = new WindowsViewModel(_windowService, _miniWindowService, blacklistService, SaveConfig, Notify);
+        var windows = new WindowsViewModel(_windowService, _miniWindowService, blacklistService, appIconService, SaveConfig, Notify);
         var layouts = new LayoutsViewModel(layoutService, SaveConfig, Notify);
         var rules = new RulesViewModel(
             _config,
@@ -87,6 +89,7 @@ public partial class MainWindow : Window
         DataContext = _viewModel;
 
         Loaded += (_, _) => _viewModel.RefreshAll();
+        Activated += (_, _) => _trayFlyoutService?.Hide();
     }
 
     private void OnSourceInitialized(object? sender, EventArgs e)
@@ -103,21 +106,32 @@ public partial class MainWindow : Window
             _viewModel.StatusMessage = $"{failures.Count} 个快捷键注册失败，请到快捷键页修改。";
         }
 
+        _trayFlyoutService = new TrayFlyoutService();
+        _trayFlyoutService.ViewModel = new TrayFlyoutViewModel(
+            _trayFlyoutService.Hide,
+            ShowMainWindow,
+            SafeRecoveryMode,
+            () => RunGlobalOperation(_windowService.ClearAllTopMost),
+            () => RunGlobalOperation(_windowService.RestoreAllOpacity),
+            () => RunGlobalOperation(_windowService.ClearAllClickThrough),
+            () => RunGlobalOperation(_miniWindowService.RestoreAll),
+            EmergencyRestore,
+            () => PauseRulesFor(TimeSpan.FromSeconds(30)),
+            () =>
+            {
+                ShowMainWindow();
+                _viewModel.NavigateCommand.Execute("Settings");
+            },
+            ExitApplication);
+
         _trayIconService = new TrayIconService();
-        _trayIconService.OpenRequested += (_, _) => ShowMainWindow();
-        _trayIconService.SafeRecoveryRequested += (_, _) => SafeRecoveryMode();
-        _trayIconService.ClearTopMostRequested += (_, _) => RunGlobalOperation(_windowService.ClearAllTopMost);
-        _trayIconService.RestoreOpacityRequested += (_, _) => RunGlobalOperation(_windowService.RestoreAllOpacity);
-        _trayIconService.ClearClickThroughRequested += (_, _) => RunGlobalOperation(_windowService.ClearAllClickThrough);
-        _trayIconService.RestoreMiniWindowsRequested += (_, _) => RunGlobalOperation(_miniWindowService.RestoreAll);
-        _trayIconService.EmergencyRestoreRequested += (_, _) => EmergencyRestore();
-        _trayIconService.PauseRulesRequested += (_, _) => PauseRulesFor(TimeSpan.FromSeconds(30));
-        _trayIconService.SettingsRequested += (_, _) =>
+        _trayIconService.OpenRequested += (_, _) =>
         {
+            _trayFlyoutService.Hide();
             ShowMainWindow();
-            _viewModel.NavigateCommand.Execute("Settings");
         };
-        _trayIconService.ExitRequested += (_, _) => ExitApplication();
+        _trayIconService.FlyoutRequested += (_, args) =>
+            _trayFlyoutService.Toggle(args.IconBounds, args.CursorPosition);
 
         _overlayService = new OverlayService(
             _windowService,
@@ -289,6 +303,8 @@ public partial class MainWindow : Window
                 return;
             }
 
+            _trayFlyoutService?.Hide();
+
             if (WindowState == WindowState.Minimized)
             {
                 WindowState = WindowState.Normal;
@@ -457,6 +473,7 @@ public partial class MainWindow : Window
         _ruleService.Dispose();
         _overlayService?.Dispose();
         _hotKeyService?.Dispose();
+        _trayFlyoutService?.Dispose();
         _trayIconService?.Dispose();
     }
 }
