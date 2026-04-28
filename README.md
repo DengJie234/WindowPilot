@@ -217,41 +217,6 @@ WindowPilot 配置文件位于：
 
 新版托盘 Flyout 已加入全局外部点击监听。点击桌面、其他应用或任务栏其他区域都会关闭面板。
 
-## GitHub 上传建议
-
-建议上传这些内容：
-
-- `Assets/`
-- `Converters/`
-- `Models/`
-- `Native/`
-- `Services/`
-- `Styles/`
-- `ViewModels/`
-- `Views/`
-- `app.manifest`
-- `App.xaml`
-- `App.xaml.cs`
-- `AssemblyInfo.cs`
-- `MainWindow.xaml`
-- `MainWindow.xaml.cs`
-- `WindowPilot.csproj`
-- `README.md`
-- `.gitignore`
-- `GITHUB_PROJECT_DESCRIPTION.md`
-
-不要上传这些内容：
-
-- `bin/`
-- `obj/`
-- `publish/`
-- `.vs/`
-- `.idea/`
-- `*.user`
-- `*.suo`
-- 本机配置文件 `config.json`
-- 日志、临时文件、压缩包
-
 ## Release Notes
 
 ### v0.2
@@ -275,6 +240,3 @@ WindowPilot 配置文件位于：
 - 优化 Overlay 显示条件和样式
 - 配置文件写入增加 debounce 和备份恢复
 
-## License
-
-如果你准备开源，建议添加一个 `LICENSE` 文件。个人项目常用 MIT License。
