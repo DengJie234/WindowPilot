@@ -1,25 +1,18 @@
 using System.IO;
-using Forms = System.Windows.Forms;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Drawing = System.Drawing;
+using Forms = System.Windows.Forms;
 
 namespace WindowPilot.Services;
 
 public sealed class TrayIconService : IDisposable
 {
     private readonly Forms.NotifyIcon _notifyIcon;
-    private readonly Forms.ContextMenuStrip _menu = new();
     private readonly Drawing.Icon? _icon;
 
     public event EventHandler? OpenRequested;
-    public event EventHandler? SafeRecoveryRequested;
-    public event EventHandler? ClearTopMostRequested;
-    public event EventHandler? RestoreOpacityRequested;
-    public event EventHandler? ClearClickThroughRequested;
-    public event EventHandler? RestoreMiniWindowsRequested;
-    public event EventHandler? EmergencyRestoreRequested;
-    public event EventHandler? PauseRulesRequested;
-    public event EventHandler? SettingsRequested;
-    public event EventHandler? ExitRequested;
+    public event EventHandler<TrayFlyoutRequestedEventArgs>? FlyoutRequested;
 
     public TrayIconService()
     {
@@ -28,32 +21,33 @@ public sealed class TrayIconService : IDisposable
         {
             Icon = _icon ?? Drawing.SystemIcons.Application,
             Text = "WindowPilot",
-            Visible = true,
-            ContextMenuStrip = _menu
+            Visible = true
         };
 
-        AddItem("打开 WindowPilot", (_, _) => OpenRequested?.Invoke(this, EventArgs.Empty));
-        AddDisabledItem("当前状态：运行中");
-        AddSeparator();
-        AddItem("安全恢复模式", (_, _) => SafeRecoveryRequested?.Invoke(this, EventArgs.Empty));
-        AddItem("取消全部置顶", (_, _) => ClearTopMostRequested?.Invoke(this, EventArgs.Empty));
-        AddItem("恢复全部透明度", (_, _) => RestoreOpacityRequested?.Invoke(this, EventArgs.Empty));
-        AddItem("取消全部点击穿透", (_, _) => ClearClickThroughRequested?.Invoke(this, EventArgs.Empty));
-        AddItem("恢复所有小窗", (_, _) => RestoreMiniWindowsRequested?.Invoke(this, EventArgs.Empty));
-        AddItem("紧急恢复", (_, _) => EmergencyRestoreRequested?.Invoke(this, EventArgs.Empty));
-        AddSeparator();
-        AddItem("暂停自动规则 30 秒", (_, _) => PauseRulesRequested?.Invoke(this, EventArgs.Empty));
-        AddItem("设置", (_, _) => SettingsRequested?.Invoke(this, EventArgs.Empty));
-        AddSeparator();
-        AddItem("退出", (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty));
+        _notifyIcon.MouseDoubleClick += (_, args) =>
+        {
+            if (args.Button == Forms.MouseButtons.Left)
+            {
+                OpenRequested?.Invoke(this, EventArgs.Empty);
+            }
+        };
 
-        _notifyIcon.DoubleClick += (_, _) => OpenRequested?.Invoke(this, EventArgs.Empty);
         _notifyIcon.MouseUp += (_, args) =>
         {
             if (args.Button == Forms.MouseButtons.Left)
             {
-                _menu.Show(Forms.Cursor.Position);
+                OpenRequested?.Invoke(this, EventArgs.Empty);
+                return;
             }
+
+            if (args.Button != Forms.MouseButtons.Right)
+            {
+                return;
+            }
+
+            FlyoutRequested?.Invoke(
+                this,
+                new TrayFlyoutRequestedEventArgs(TryGetIconBounds(), Forms.Cursor.Position));
         };
     }
 
@@ -70,7 +64,71 @@ public sealed class TrayIconService : IDisposable
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
         _icon?.Dispose();
-        _menu.Dispose();
+    }
+
+    private Drawing.Rectangle? TryGetIconBounds()
+    {
+        if (!TryGetNotifyIconIdentifier(out var identifier))
+        {
+            return null;
+        }
+
+        var result = Shell_NotifyIconGetRect(ref identifier, out var rect);
+        if (result != 0)
+        {
+            return null;
+        }
+
+        return Drawing.Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
+    }
+
+    private bool TryGetNotifyIconIdentifier(out NotifyIconIdentifier identifier)
+    {
+        identifier = default;
+
+        var notifyIconType = typeof(Forms.NotifyIcon);
+        var idField = notifyIconType.GetField("_id", BindingFlags.NonPublic | BindingFlags.Instance)
+            ?? notifyIconType.GetField("id", BindingFlags.NonPublic | BindingFlags.Instance);
+        var windowField = notifyIconType.GetField("_window", BindingFlags.NonPublic | BindingFlags.Instance)
+            ?? notifyIconType.GetField("window", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (idField?.GetValue(_notifyIcon) is not { } idValue ||
+            windowField?.GetValue(_notifyIcon) is not { } nativeWindow)
+        {
+            return false;
+        }
+
+        var hwnd = GetNativeWindowHandle(nativeWindow);
+        if (hwnd == IntPtr.Zero)
+        {
+            return false;
+        }
+
+        identifier = new NotifyIconIdentifier
+        {
+            CbSize = (uint)Marshal.SizeOf<NotifyIconIdentifier>(),
+            HWnd = hwnd,
+            UID = Convert.ToUInt32(idValue)
+        };
+        return true;
+    }
+
+    private static IntPtr GetNativeWindowHandle(object nativeWindow)
+    {
+        var handleProperty = nativeWindow.GetType().GetProperty(
+            "Handle",
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        if (handleProperty?.GetValue(nativeWindow) is IntPtr handle)
+        {
+            return handle;
+        }
+
+        var handleField = nativeWindow.GetType().GetField(
+            "_handle",
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        return handleField?.GetValue(nativeWindow) is IntPtr fieldHandle
+            ? fieldHandle
+            : IntPtr.Zero;
     }
 
     private static Drawing.Icon? LoadAppIcon()
@@ -90,18 +148,36 @@ public sealed class TrayIconService : IDisposable
         return null;
     }
 
-    private void AddItem(string text, EventHandler handler)
+    [DllImport("shell32.dll", SetLastError = false)]
+    private static extern int Shell_NotifyIconGetRect(ref NotifyIconIdentifier identifier, out NativeRect iconLocation);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NotifyIconIdentifier
     {
-        _menu.Items.Add(new Forms.ToolStripMenuItem(text, null, handler));
+        public uint CbSize;
+        public IntPtr HWnd;
+        public uint UID;
+        public Guid GuidItem;
     }
 
-    private void AddDisabledItem(string text)
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeRect
     {
-        _menu.Items.Add(new Forms.ToolStripMenuItem(text) { Enabled = false });
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+}
+
+public sealed class TrayFlyoutRequestedEventArgs : EventArgs
+{
+    public TrayFlyoutRequestedEventArgs(Drawing.Rectangle? iconBounds, Drawing.Point cursorPosition)
+    {
+        IconBounds = iconBounds;
+        CursorPosition = cursorPosition;
     }
 
-    private void AddSeparator()
-    {
-        _menu.Items.Add(new Forms.ToolStripSeparator());
-    }
+    public Drawing.Rectangle? IconBounds { get; }
+    public Drawing.Point CursorPosition { get; }
 }

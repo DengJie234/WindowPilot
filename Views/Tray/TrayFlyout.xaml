@@ -1,0 +1,193 @@
+<Window x:Class="WindowPilot.Views.Tray.TrayFlyout"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WindowPilot"
+        Width="320"
+        SizeToContent="Height"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowActivated="False"
+        Deactivated="OnDeactivated"
+        PreviewKeyDown="OnPreviewKeyDown">
+    <Window.Resources>
+        <Style x:Key="TrayMenuButton" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Microsoft YaHei UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#EFF6FF"/>
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#DBEAFE"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
+                                <Setter TargetName="Root" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TrayDangerButton" TargetType="{x:Type Button}" BasedOn="{StaticResource TrayMenuButton}">
+            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FEF2F2"/>
+                    <Setter Property="Foreground" Value="{StaticResource DangerHoverBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Border Background="{StaticResource CardBackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Padding="16">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="26"
+                                  ShadowDepth="8"
+                                  Opacity="0.20"
+                                  Color="#111827"/>
+            </Border.Effect>
+
+            <StackPanel>
+                <DockPanel Margin="0,0,0,12">
+                    <Border Width="42"
+                            Height="42"
+                            CornerRadius="12"
+                            Background="#EEF2FF"
+                            Margin="0,0,12,0">
+                        <Image Source="Assets/AppIcon.ico"
+                               Width="28"
+                               Height="28"
+                               Stretch="Uniform"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="WindowPilot"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <Ellipse Width="8" Height="8" Fill="#22C55E" Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding StatusText}"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       FontSize="12"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DockPanel>
+
+                <Border Background="#F8FAFC"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="12"
+                        Margin="0,0,0,10">
+                    <TextBlock Text="{Binding HintText}"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding OpenMainWindowCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="↗" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="打开 WindowPilot" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+
+                <Separator Margin="0,8" Background="{StaticResource BorderBrush}"/>
+
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding SafeRecoveryCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✓" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="安全恢复模式" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding ClearTopMostCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="□" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="取消全部置顶" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding RestoreOpacityCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="◐" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="恢复全部透明度" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding ClearClickThroughCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="◎" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="取消全部点击穿透" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding RestoreMiniWindowsCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="▣" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="恢复所有小窗" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding EmergencyRestoreCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="!" Width="24" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="紧急恢复" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding PauseRulesCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Ⅱ" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="暂停自动规则 30 秒" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+
+                <Separator Margin="0,8" Background="{StaticResource BorderBrush}"/>
+
+                <Button Style="{StaticResource TrayMenuButton}" Command="{Binding OpenSettingsCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚙" Width="24" FontSize="15" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="设置" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource TrayDangerButton}" Command="{Binding ExitApplicationCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="×" Width="24" FontSize="17" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="退出" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

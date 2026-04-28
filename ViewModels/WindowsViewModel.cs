@@ -12,6 +12,7 @@ public sealed class WindowsViewModel : ViewModelBase
     private readonly WindowService _windowService;
     private readonly MiniWindowService _miniWindowService;
     private readonly BlacklistService _blacklistService;
+    private readonly AppIconService _appIconService;
     private readonly Action _saveConfig;
     private readonly Action<string, bool> _notify;
     private string _searchText = string.Empty;
@@ -24,12 +25,14 @@ public sealed class WindowsViewModel : ViewModelBase
         WindowService windowService,
         MiniWindowService miniWindowService,
         BlacklistService blacklistService,
+        AppIconService appIconService,
         Action saveConfig,
         Action<string, bool> notify)
     {
         _windowService = windowService;
         _miniWindowService = miniWindowService;
         _blacklistService = blacklistService;
+        _appIconService = appIconService;
         _saveConfig = saveConfig;
         _notify = notify;
 
@@ -133,7 +136,7 @@ public sealed class WindowsViewModel : ViewModelBase
             }
             else
             {
-                Windows.Add(new WindowRowViewModel(info, _blacklistService, isMini));
+                Windows.Add(new WindowRowViewModel(info, _blacklistService, _appIconService, isMini));
             }
         }
 

@@ -1,22 +1,34 @@
 using WindowPilot.Models;
 using WindowPilot.Services;
+using System.Windows.Media;
 
 namespace WindowPilot.ViewModels;
 
 public sealed class WindowRowViewModel : ViewModelBase
 {
     private readonly BlacklistService _blacklistService;
+    private readonly AppIconService _appIconService;
     private WindowInfo _info;
+    private ImageSource _appIcon;
     private bool _isMini;
 
-    public WindowRowViewModel(WindowInfo info, BlacklistService blacklistService, bool isMini)
+    public WindowRowViewModel(WindowInfo info, BlacklistService blacklistService, AppIconService appIconService, bool isMini)
     {
         _info = info;
         _blacklistService = blacklistService;
+        _appIconService = appIconService;
+        _appIcon = appIconService.GetCachedIcon(info);
         _isMini = isMini;
+        _ = LoadAppIconAsync(info);
     }
 
     public WindowInfo Info => _info;
+    public ImageSource AppIcon
+    {
+        get => _appIcon;
+        private set => SetProperty(ref _appIcon, value);
+    }
+
     public bool IsMini => _isMini;
     public nint Handle => Info.Handle;
     public string Title => string.IsNullOrWhiteSpace(Info.Title) ? "(无标题窗口)" : Info.Title;
@@ -80,6 +92,7 @@ public sealed class WindowRowViewModel : ViewModelBase
 
         _info = info;
         _isMini = isMini;
+        _ = LoadAppIconAsync(info);
         OnPropertyChanged(nameof(Info));
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(ProcessName));
@@ -98,6 +111,7 @@ public sealed class WindowRowViewModel : ViewModelBase
         _isMini != isMini ||
         _info.Title != info.Title ||
         _info.ProcessName != info.ProcessName ||
+        _info.ProcessPath != info.ProcessPath ||
         _info.ProcessId != info.ProcessId ||
         _info.X != info.X ||
         _info.Y != info.Y ||
@@ -107,4 +121,13 @@ public sealed class WindowRowViewModel : ViewModelBase
         _info.IsTopMost != info.IsTopMost ||
         _info.IsClickThrough != info.IsClickThrough ||
         _info.OpacityPercent != info.OpacityPercent;
+
+    private async Task LoadAppIconAsync(WindowInfo info)
+    {
+        var icon = await _appIconService.GetIconForWindowAsync(info);
+        if (Info.Handle == info.Handle && !ReferenceEquals(AppIcon, icon))
+        {
+            AppIcon = icon;
+        }
+    }
 }
